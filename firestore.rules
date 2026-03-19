@@ -1,0 +1,187 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper functions ────────────────────────────────────────────────────
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function uid() {
+      return request.auth.uid;
+    }
+
+    function userDoc() {
+      return /databases/$(database)/documents/users/$(uid());
+    }
+
+    function role() {
+      return exists(userDoc())
+        ? get(userDoc()).data.role
+        : '';
+    }
+
+    function isOwner()   { return isAuthenticated() && role() == 'owner';   }
+    function isManager() { return isAuthenticated() && role() == 'manager'; }
+    function isHead()    { return isAuthenticated() && role() == 'head';    }
+    function isAdmin()   { return isOwner() || isManager() || isHead();     }
+    function isOwnerOrManager() { return isOwner() || isManager() || isHead(); }
+
+    // ── Users ────────────────────────────────────────────────────────────────
+
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin();
+      allow update: if isAuthenticated() && (uid() == userId || isAdmin());
+      allow delete: if isOwner();
+
+      // ── Device Tokens (FCM) ─────────────────────────────────────────────
+      // Users can manage their OWN device tokens only.
+      // Cloud Functions use Admin SDK (bypass rules) to read tokens for push.
+      match /devices/{deviceId} {
+        allow read:   if isAuthenticated() && uid() == userId;
+        allow create: if isAuthenticated() && uid() == userId;
+        allow update: if isAuthenticated() && uid() == userId;
+        allow delete: if isAuthenticated() && uid() == userId;
+      }
+    }
+
+    // ── Notifications ────────────────────────────────────────────────────────
+    // WRITE is restricted to Cloud Functions (Admin SDK bypasses rules).
+    // Users can only read their OWN notifications and mark them as read.
+
+    match /notifications/{notificationId} {
+      // Read: only if the current user is in the receiverIds array
+      allow read: if isAuthenticated() &&
+        uid() in resource.data.receiverIds;
+
+      // Update: only allow marking isRead = true on your own notifications
+      allow update: if isAuthenticated() &&
+        uid() in resource.data.receiverIds &&
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['isRead']) &&
+        request.resource.data.isRead == true;
+
+      // Delete: user can delete their own notifications
+      allow delete: if isAuthenticated() &&
+        uid() in resource.data.receiverIds;
+
+      // Create: BLOCKED for clients — Cloud Functions Admin SDK writes these
+      allow create: if false;
+    }
+
+    // ── Client Notifications (Chat/Group/Warehouse Real-time) ────────────────
+    // Client-side generated notifications for immediate feedback.
+    
+    match /clientNotifications/{notificationId} {
+      allow read: if isAuthenticated() && uid() in resource.data.receiverIds;
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() &&
+        uid() in resource.data.receiverIds &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead']);
+      allow delete: if isAuthenticated() && uid() in resource.data.receiverIds;
+    }
+
+    // ── Chats ────────────────────────────────────────────────────────────────
+
+    match /chats/{chatId} {
+      allow read: if isAuthenticated() &&
+        uid() in resource.data.memberIds;
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() &&
+        uid() in resource.data.memberIds;
+      allow delete: if isAdmin();
+
+      match /messages/{messageId} {
+        allow read: if isAuthenticated() &&
+          uid() in get(/databases/$(database)/documents/chats/$(chatId)).data.memberIds;
+        allow create: if isAuthenticated() &&
+          uid() in get(/databases/$(database)/documents/chats/$(chatId)).data.memberIds;
+        allow update: if isAuthenticated() &&
+          uid() == resource.data.senderId;
+        allow delete: if isAdmin();
+      }
+    }
+
+    // ── Groups ───────────────────────────────────────────────────────────────
+    match /groups/{groupId} {
+      allow create: if isAuthenticated() && request.resource.data.createdBy == request.auth.uid;
+      allow read: if isAuthenticated() && (isAdmin() || request.auth.uid == resource.data.createdBy || request.auth.uid in resource.data.memberIds);
+      allow update: if isAuthenticated() && (request.auth.uid == resource.data.createdBy || isAdmin());
+      allow delete: if isAuthenticated() && (request.auth.uid == resource.data.createdBy || isAdmin());
+    }
+
+    // ── Warehouses ───────────────────────────────────────────────────────────
+
+    match /warehouses/{warehouseId} {
+      allow read: if isAuthenticated() && (isAdmin() || uid() in resource.data.memberIds);
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── Announcements ─────────────────────────────────────────────────────────
+
+    match /announcements/{announcementId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isOwnerOrManager();
+    }
+
+    // ── Tasks ─────────────────────────────────────────────────────────────────
+    // Visible only to: the assignee, the assigner, and admins.
+
+    match /tasks/{taskId} {
+      allow read: if isAuthenticated() && (
+        uid() == resource.data.assignedTo ||
+        uid() == resource.data.assignedBy ||
+        isAdmin()
+      );
+      allow create: if isAdmin();
+      allow update: if isAuthenticated() && (
+        uid() == resource.data.assignedTo || isAdmin()
+      );
+      allow delete: if isAdmin();
+    }
+
+    // ── Calls ─────────────────────────────────────────────────────────────────
+
+    match /calls/{callId} {
+      allow read: if isAuthenticated() && (
+        uid() == resource.data.callerId ||
+        uid() == resource.data.receiverId
+      );
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (
+        uid() == resource.data.callerId ||
+        uid() == resource.data.receiverId
+      );
+      allow delete: if isAdmin();
+    }
+
+    // ── Sheets (from Sheets v2 integration) ──────────────────────────────────
+
+    match /sheets/{sheetId} {
+      allow read: if isAuthenticated() && (
+        isAdmin() ||
+        uid() in resource.data.assignedUsers ||
+        uid() in resource.data.permissions.canView ||
+        uid() in resource.data.permissions.canEdit
+      );
+      allow create, update: if isAdmin();
+      allow delete: if isOwner();
+    }
+
+    match /sheetAuditLogs/{logId} {
+      allow read: if isAdmin();
+      allow write: if false; // Admin SDK only
+    }
+
+    match /settings/permissions {
+      allow read: if isAuthenticated();
+      allow write: if isOwner();
+    }
+  }
+}
