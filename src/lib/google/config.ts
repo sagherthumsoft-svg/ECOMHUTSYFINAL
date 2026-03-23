@@ -61,7 +61,7 @@ export const getDrive = () => {
   return drive;
 };
 
-export const MASTER_FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID;
+export const MASTER_FOLDER_ID = process.env.VITE_GOOGLE_DRIVE_FOLDER_ID || process.env.GOOGLE_DRIVE_FOLDER_ID;
 
 if (!MASTER_FOLDER_ID && process.env.NODE_ENV !== 'production') {
   console.warn("GOOGLE_DRIVE_FOLDER_ID is not defined in environment variables.");
