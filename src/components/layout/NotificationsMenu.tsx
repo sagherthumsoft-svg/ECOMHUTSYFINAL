@@ -20,7 +20,7 @@ export default function NotificationsMenu() {
   useClickAway(ref, () => setIsOpen(false));
 
   useEffect(() => {
-    if (!dbUser?.uid) return;
+    if (!dbUser?.uid || !db) return;
 
     // Listen to notifications written by Cloud Functions / admin SDK
     const qMain = query(
@@ -66,7 +66,7 @@ export default function NotificationsMenu() {
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
   const handleNotificationClick = async (notif: Notification & { chatId?: string; groupId?: string; warehouseId?: string }) => {
-    if (!notif.isRead) {
+    if (!notif.isRead && db) {
       // Try both collections — we don't store which collection the notif came from,
       // so we attempt both in sequence (one will succeed, other may 404 silently)
       try {

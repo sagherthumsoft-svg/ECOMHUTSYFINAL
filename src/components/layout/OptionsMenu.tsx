@@ -35,7 +35,13 @@ export default function OptionsMenu() {
   };
 
   const handleLogout = async () => {
-    await signOut(auth);
+    try {
+      if (auth) {
+        await signOut(auth);
+      }
+    } catch (e) {
+      console.error("Logout error:", e);
+    }
     clearSession();
   };
 

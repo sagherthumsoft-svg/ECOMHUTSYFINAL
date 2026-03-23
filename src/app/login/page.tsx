@@ -22,6 +22,9 @@ export default function LoginPage() {
   }, [isLoading, authUser, router]);
 
   const handleGoogleSignIn = async () => {
+    if (!auth || !googleProvider) {
+      return toast.error("Authentication is currently unavailable. Please check your configuration.");
+    }
     setLoading(true);
     try {
       await signInWithPopup(auth, googleProvider);
@@ -37,6 +40,9 @@ export default function LoginPage() {
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!auth) {
+      return toast.error("Authentication is currently unavailable. Please check your configuration.");
+    }
     setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);

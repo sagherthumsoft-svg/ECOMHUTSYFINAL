@@ -27,7 +27,7 @@ export function useMigration(uid: string | undefined, role: string | undefined) 
   useEffect(() => {
     // Only run for admin roles
     const isAdmin = role && ["owner", "manager", "head"].includes(role);
-    if (!uid || !isAdmin) return;
+    if (!uid || !isAdmin || !db) return;
 
     // Only run once per user per browser session
     const syncKey = `adminSyncDone_${uid}`;

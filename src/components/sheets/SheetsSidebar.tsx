@@ -21,7 +21,7 @@ export default function SheetsSidebar({ onSelectSheet, selectedSheetId, onCreate
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!dbUser?.uid) return;
+    if (!dbUser?.uid || !db) return;
 
     // Listen to all active sheets
     const q = query(

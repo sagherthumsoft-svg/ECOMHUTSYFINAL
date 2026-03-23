@@ -13,8 +13,15 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase only if in browser
-const app = typeof window !== "undefined" 
+// Validate config before initialization
+const isConfigValid = !!(
+  firebaseConfig.apiKey &&
+  firebaseConfig.projectId &&
+  firebaseConfig.appId
+);
+
+// Initialize Firebase only if in browser and config is valid
+const app = (typeof window !== "undefined" && isConfigValid)
   ? (!getApps().length ? initializeApp(firebaseConfig) : getApp())
   : null as any;
 
@@ -34,12 +41,18 @@ if (typeof window !== "undefined" && app) {
     if (supported) {
       messaging = getMessaging(app);
     }
+  }).catch(err => {
+    console.warn("Firebase Messaging support check failed:", err.message);
   });
 }
 
-const googleProvider = new GoogleAuthProvider();
-googleProvider.setCustomParameters({
-  prompt: "select_account",
-});
+// Safely create Google Auth Provider
+let googleProvider: any = null;
+if (typeof window !== "undefined") {
+  googleProvider = new GoogleAuthProvider();
+  googleProvider.setCustomParameters({
+    prompt: "select_account",
+  });
+}
 
 export { app, auth, db, storage, messaging, googleProvider };

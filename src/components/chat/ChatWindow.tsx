@@ -109,7 +109,7 @@ export default function ChatWindow() {
     const chatId = activeChat?.chatId;
     const uid = dbUser?.uid;
 
-    if (!chatId || !uid) {
+    if (!chatId || !uid || !db) {
       setIsLoading(false);
       setMessages([]);
       setOtherUser(null);
@@ -229,9 +229,9 @@ export default function ChatWindow() {
     const uid = dbUser?.uid || auth.currentUser?.uid;
     const uname = dbUser?.name || dbUser?.fullName || dbUser?.email || auth.currentUser?.displayName || auth.currentUser?.email || "User";
 
-    if (!chatId || !uid) {
-      console.error("chatId or uid missing:", chatId, uid);
-      toast.error("Unable to send message: Chat or User identity not found.");
+    if (!chatId || !uid || !db) {
+      console.error("chatId, uid, or db missing:", chatId, uid, !!db);
+      toast.error("Unable to send message: Chat, User identity, or Database not found.");
       return;
     }
 
@@ -286,8 +286,8 @@ export default function ChatWindow() {
     const chatId = activeChat?.chatId;
     const uid = dbUser?.uid || auth.currentUser?.uid;
     const uname = dbUser?.name || dbUser?.fullName || dbUser?.email || auth.currentUser?.displayName || auth.currentUser?.email || "User";
-    if (!chatId || !uid) {
-      toast.error("Unable to upload: Chat or User identity not found.");
+    if (!chatId || !uid || !storage || !db) {
+      toast.error("Unable to upload: Chat, User identity, or Storage not found.");
       return;
     }
 
@@ -461,8 +461,8 @@ export default function ChatWindow() {
     const chatId = activeChat?.chatId;
     const uid = dbUser?.uid || auth.currentUser?.uid;
     const uname = dbUser?.name || dbUser?.fullName || dbUser?.email || auth.currentUser?.displayName || auth.currentUser?.email || "User";
-    if (!chatId || !uid) {
-      toast.error("Unable to upload voice note: Chat or User identity not found.");
+    if (!chatId || !uid || !storage || !db) {
+      toast.error("Unable to upload voice note: Chat, User identity, or Storage not found.");
       return;
     }
 

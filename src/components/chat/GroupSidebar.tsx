@@ -47,8 +47,11 @@ export default function GroupSidebar() {
   );
 
   useEffect(() => {
-    // Fix 7: wrap inside onAuthStateChanged — guarantees the user is auth'd
-    // before we fire any Firestore query.
+    if (!auth || !db) {
+      setIsLoading(false);
+      return;
+    }
+
     const unsubAuth = onAuthStateChanged(auth, (firebaseUser) => {
       if (!firebaseUser) {
         // Not signed in — clear state and stop loading

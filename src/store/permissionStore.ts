@@ -64,6 +64,10 @@ export const usePermissionStore = create<PermissionState>((set, get) => ({
   isLoading: true,
 
   fetchPermissions: () => {
+    if (!db) {
+      set({ isLoading: false });
+      return () => {};
+    }
     const docRef = doc(db, "settings", "permissions");
     return onSnapshot(docRef, (snapshot) => {
       if (snapshot.exists()) {
@@ -77,6 +81,7 @@ export const usePermissionStore = create<PermissionState>((set, get) => ({
   },
 
   setPermissions: async (role, feature, value) => {
+    if (!db) return;
     const newPermissions = {
       ...get().permissions,
       [role]: {

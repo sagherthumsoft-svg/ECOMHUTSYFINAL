@@ -82,7 +82,7 @@ export default function AppBar({ onMenuClick }: { onMenuClick: () => void }) {
   }, [bumpReadTick]);
 
   useEffect(() => {
-    if (!dbUser?.uid) return;
+    if (!dbUser?.uid || !db) return;
 
     const uid = dbUser.uid;
     const unsubs: (() => void)[] = [];
