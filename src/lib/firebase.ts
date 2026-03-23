@@ -3,44 +3,36 @@ import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { initializeFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getMessaging, isSupported } from "firebase/messaging";
+import { getAnalytics } from "firebase/analytics";
 
+// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  apiKey: "AIzaSyBMUvB2ORNvWVHG-jjD_VAijXFhMwS5T3c",
+  authDomain: "ecomhutsyfinal.firebaseapp.com",
+  projectId: "ecomhutsyfinal",
+  storageBucket: "ecomhutsyfinal.firebasestorage.app",
+  messagingSenderId: "383627418318",
+  appId: "1:383627418318:web:d432f2ff5593520e41ce9f",
+  measurementId: "G-HGNYS9PV09"
 };
 
-// Validate config before initialization
-const isConfigValid = !!(
-  firebaseConfig.apiKey &&
-  firebaseConfig.projectId &&
-  firebaseConfig.appId
-);
-
-if (typeof window !== "undefined" && !isConfigValid) {
-  console.warn("Firebase configuration is missing or incomplete. Check your environment variables.");
-}
-
 // Initialize Firebase
-const app = (typeof window !== "undefined" && isConfigValid)
-  ? (getApps().length === 0 ? initializeApp(firebaseConfig) : getApp())
-  : null as any;
-
-const auth = app ? getAuth(app) : null as any;
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+const auth = getAuth(app);
 
 // Use initializeFirestore with long polling
-const db = app ? initializeFirestore(app, {
+const db = initializeFirestore(app, {
   experimentalForceLongPolling: true,
-}) : null as any;
+});
 
-const storage = app ? getStorage(app) : null as any;
+const storage = getStorage(app);
 
-// Messaging initialized dynamically on client only
+// Analytics and Messaging initialized dynamically on client only
+let analytics: any = null;
 let messaging: any = null;
-if (typeof window !== "undefined" && app) {
+
+if (typeof window !== "undefined") {
+  analytics = getAnalytics(app);
   isSupported().then((supported) => {
     if (supported) {
       messaging = getMessaging(app);
@@ -59,4 +51,4 @@ if (typeof window !== "undefined") {
   });
 }
 
-export { app, auth, db, storage, messaging, googleProvider };
+export { app, auth, db, storage, messaging, analytics, googleProvider };
