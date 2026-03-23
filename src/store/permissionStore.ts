@@ -11,7 +11,8 @@ export type FeatureKey =
   | "hr" 
   | "tasks" 
   | "announcements" 
-  | "chats";
+  | "chats"
+  | "reports";
 
 export type RolePermissions = Record<FeatureKey, boolean>;
 
@@ -32,6 +33,7 @@ const defaultPermissions: Record<Exclude<UserRole, "owner">, RolePermissions> = 
     tasks: true,
     announcements: true,
     chats: true,
+    reports: true,
   },
   head: {
     users: true,
@@ -42,6 +44,7 @@ const defaultPermissions: Record<Exclude<UserRole, "owner">, RolePermissions> = 
     tasks: true,
     announcements: true,
     chats: true,
+    reports: true,
   },
   team_member: {
     users: false,
@@ -52,6 +55,7 @@ const defaultPermissions: Record<Exclude<UserRole, "owner">, RolePermissions> = 
     tasks: false,
     announcements: true,
     chats: true,
+    reports: false,
   },
 };
 

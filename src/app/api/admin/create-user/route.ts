@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { adminAuth, adminDb } from '@/lib/firebaseAdmin';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   if (!adminAuth || !adminDb) {
     return NextResponse.json({ error: 'Firebase Admin not configured' }, { status: 500 });

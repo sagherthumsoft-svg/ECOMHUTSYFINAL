@@ -20,6 +20,7 @@ const featureLabels: Record<FeatureKey, string> = {
   tasks: "Task Management",
   announcements: "Announcements",
   chats: "Chat System",
+  reports: "Reports Dashboard",
 };
 
 const roleLabels: Record<Exclude<UserRole, "owner">, string> = {

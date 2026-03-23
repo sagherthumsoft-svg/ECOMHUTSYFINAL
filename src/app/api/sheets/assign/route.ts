@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { adminAuth, adminDb } from "@/lib/firebaseAdmin";
+
+export const dynamic = "force-dynamic";
 import { drive } from "@/lib/google/config";
 
 export async function POST(req: Request) {

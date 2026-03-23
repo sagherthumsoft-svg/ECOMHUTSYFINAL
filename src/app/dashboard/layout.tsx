@@ -16,6 +16,7 @@ import ManageGroupsModal from "@/components/modals/ManageGroupsModal";
 import ManageWarehousesModal from "@/components/modals/ManageWarehousesModal";
 import HRManagerModal from "@/components/modals/HRManagerModal";
 import ManageAccessModal from "@/components/modals/ManageAccessModal";
+import ReportsModal from "@/components/modals/ReportsModal";
 import { useAppStore } from "@/store/appStore";
 import { usePermissionStore } from "@/store/permissionStore";
 import { useMigration } from "@/hooks/useMigration";
@@ -79,6 +80,7 @@ export default function DashboardLayout({
       <ManageWarehousesModal isOpen={activeModal === "manageWarehouses"} onClose={closeModals} />
       <HRManagerModal isOpen={activeModal === "hrManager"} onClose={closeModals} />
       <ManageAccessModal isOpen={activeModal === "manageAccess"} onClose={closeModals} />
+      <ReportsModal isOpen={activeModal === "reports"} onClose={closeModals} />
 
       {/* Drawer */}
       {(dbUser.role === "owner" || dbUser.role === "head" || dbUser.role === "manager") && (

@@ -21,6 +21,7 @@ import {
   CheckSquare,
   Briefcase,
   ShieldCheck,
+  BarChart3,
   LogOut,
 } from "lucide-react";
 import { auth } from "@/lib/firebase";
@@ -50,6 +51,7 @@ export default function OwnerDrawer({
     { icon: FileSpreadsheet, label: "Google Sheets", onClick: () => setActiveModal("googleSheets"), feature: "sheets" },
     { icon: Briefcase, label: "HR Manager", onClick: () => setActiveModal("hrManager"), feature: "hr" },
     { icon: ShieldCheck, label: "Manage Access", onClick: () => setActiveModal("manageAccess"), feature: "manageAccess" as any },
+    { icon: BarChart3, label: "Reports", onClick: () => setActiveModal("reports"), feature: "reports" },
     { icon: CheckSquare, label: "Create Tasks", onClick: () => setActiveModal("createTask"), feature: "tasks" },
   ];
 

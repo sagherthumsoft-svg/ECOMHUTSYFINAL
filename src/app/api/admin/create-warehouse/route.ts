@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { adminAuth, adminDb } from '@/lib/firebaseAdmin';
+
+export const dynamic = 'force-dynamic';
 import { FieldValue } from 'firebase-admin/firestore';
 
 export async function POST(request: Request) {
