@@ -16,7 +16,7 @@ interface UserState {
 export const useUserStore = create<UserState>((set) => ({
   authUser: null,
   dbUser: null,
-  isLoading: true,
+  isLoading: true, // Initial state is true until auth resolves via AuthProvider
   setAuthUser: (authUser) => set({ authUser }),
   setDbUser: (dbUser) => set({ dbUser }),
   setLoading: (isLoading) => set({ isLoading }),

@@ -48,13 +48,16 @@ export default function DashboardLayout({
     }
   }, [isLoading, authUser, dbUser, router]);
 
-  if (isLoading || !dbUser) {
+  if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center bg-slate-50 dark:bg-zinc-900">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
       </div>
     );
   }
+
+  // If loading is done but dbUser is still missing, we return null while the redirect happens
+  if (!dbUser) return null;
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-white dark:bg-zinc-900">
