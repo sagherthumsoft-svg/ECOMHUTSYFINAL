@@ -8,6 +8,7 @@ export async function createSpreadsheet(name: string, creatorEmail?: string, tem
     throw new Error("Missing GOOGLE_DRIVE_FOLDER_ID environment variable.");
   }
 
+  console.log("Creating spreadsheet in folder:", MASTER_FOLDER_ID);
   const drive = getDrive();
   // 1. Create file directly in Drive (inside folder)
   const file = await drive.files.create({
