@@ -12,6 +12,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { setAuthUser, setDbUser, setLoading, clearSession } = useUserStore();
 
   useEffect(() => {
+    if (!auth) return;
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setLoading(true);
       if (user) {

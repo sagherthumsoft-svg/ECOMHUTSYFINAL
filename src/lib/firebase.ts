@@ -13,20 +13,23 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase only if not already initialized
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const auth = getAuth(app);
+// Initialize Firebase only if in browser
+const app = typeof window !== "undefined" 
+  ? (!getApps().length ? initializeApp(firebaseConfig) : getApp())
+  : null as any;
 
-// Use initializeFirestore to force long polling for better reliability in local dev environments
-const db = initializeFirestore(app, {
+const auth = app ? getAuth(app) : null as any;
+
+// Use initializeFirestore with long polling
+const db = app ? initializeFirestore(app, {
   experimentalForceLongPolling: true,
-});
+}) : null as any;
 
-const storage = getStorage(app);
+const storage = app ? getStorage(app) : null as any;
 
 // Messaging initialized dynamically on client only
 let messaging: any = null;
-if (typeof window !== "undefined") {
+if (typeof window !== "undefined" && app) {
   isSupported().then((supported) => {
     if (supported) {
       messaging = getMessaging(app);
