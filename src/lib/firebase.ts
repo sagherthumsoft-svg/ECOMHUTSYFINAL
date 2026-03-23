@@ -20,9 +20,13 @@ const isConfigValid = !!(
   firebaseConfig.appId
 );
 
-// Initialize Firebase only if in browser and config is valid
+if (typeof window !== "undefined" && !isConfigValid) {
+  console.warn("Firebase configuration is missing or incomplete. Check your environment variables.");
+}
+
+// Initialize Firebase
 const app = (typeof window !== "undefined" && isConfigValid)
-  ? (!getApps().length ? initializeApp(firebaseConfig) : getApp())
+  ? (getApps().length === 0 ? initializeApp(firebaseConfig) : getApp())
   : null as any;
 
 const auth = app ? getAuth(app) : null as any;
