@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { adminAuth, adminDb } from "@/lib/firebaseAdmin";
 
 export const dynamic = "force-dynamic";
-import { drive } from "@/lib/google/config";
+import { getDrive } from "@/lib/google/config";
 
 export async function POST(req: Request) {
   try {
@@ -57,6 +57,7 @@ export async function POST(req: Request) {
         if (!user.email) continue;
         
         try {
+          const drive = getDrive();
           const role = (permissions?.canEdit || []).includes(user.id) ? "writer" : "reader";
           
           await drive.permissions.create({

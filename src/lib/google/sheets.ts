@@ -1,4 +1,4 @@
-import { sheets, drive, MASTER_FOLDER_ID } from "./config";
+import { getSheets, getDrive, MASTER_FOLDER_ID } from "./config";
 
 /**
  * Creates a new spreadsheet directly in the target folder and shares it
@@ -8,6 +8,7 @@ export async function createSpreadsheet(name: string, creatorEmail?: string, tem
     throw new Error("Missing GOOGLE_DRIVE_FOLDER_ID environment variable.");
   }
 
+  const drive = getDrive();
   // 1. Create file directly in Drive (inside folder)
   const file = await drive.files.create({
     requestBody: {
@@ -60,6 +61,7 @@ export async function createSpreadsheet(name: string, creatorEmail?: string, tem
     }
   }
 
+  const sheets = getSheets();
   // 3. (Optional) Add template data
   if (templateData.length > 0) {
     await sheets.spreadsheets.values.update({
@@ -79,6 +81,7 @@ export async function createSpreadsheet(name: string, creatorEmail?: string, tem
  * Fetches data from a spreadsheet
  */
 export async function getSheetData(spreadsheetId: string, range: string = "Sheet1") {
+  const sheets = getSheets();
   const response = await sheets.spreadsheets.values.get({
     spreadsheetId,
     range,
@@ -91,6 +94,7 @@ export async function getSheetData(spreadsheetId: string, range: string = "Sheet
  * Updates data in a spreadsheet
  */
 export async function updateSheetData(spreadsheetId: string, range: string, values: any[][]) {
+  const sheets = getSheets();
   const response = await sheets.spreadsheets.values.update({
     spreadsheetId,
     range,
@@ -107,6 +111,7 @@ export async function updateSheetData(spreadsheetId: string, range: string, valu
  * Appends a row to a spreadsheet
  */
 export async function appendSheetRow(spreadsheetId: string, range: string, values: any[][]) {
+  const sheets = getSheets();
   const response = await sheets.spreadsheets.values.append({
     spreadsheetId,
     range,
@@ -124,6 +129,7 @@ export async function appendSheetRow(spreadsheetId: string, range: string, value
  * Trashes a spreadsheet in Google Drive
  */
 export async function deleteSpreadsheet(spreadsheetId: string) {
+  const drive = getDrive();
   await drive.files.update({
     fileId: spreadsheetId,
     requestBody: {
@@ -139,6 +145,7 @@ export async function deleteSpreadsheet(spreadsheetId: string) {
  * Exports a spreadsheet to a specific format
  */
 export async function exportSheet(spreadsheetId: string, format: string) {
+  const drive = getDrive();
   let mimeType = "";
 
   switch (format) {
