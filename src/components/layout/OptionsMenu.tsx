@@ -1,14 +1,34 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { MoreVertical, Moon, Sun, Settings, UserCircle, LogOut } from "lucide-react";
+import { 
+  MoreVertical, 
+  Moon, 
+  Sun, 
+  Settings, 
+  UserCircle, 
+  LogOut, 
+  Users, 
+  Building2, 
+  Megaphone, 
+  CheckSquare, 
+  Calendar, 
+  Clock, 
+  DollarSign, 
+  MessageSquare 
+} from "lucide-react";
 import { useUserStore } from "@/store/userStore";
+import { useAppStore } from "@/store/appStore";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useClickAway } from "react-use";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function OptionsMenu() {
   const { dbUser, clearSession } = useUserStore();
+  const { setActiveModal } = useAppStore();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -70,14 +90,6 @@ export default function OptionsMenu() {
             </div>
           </div>
 
-          <button className="flex items-center w-full px-4 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg text-sm text-slate-700 dark:text-slate-300 transition-colors">
-            <UserCircle className="w-4 h-4 mr-3 opacity-70" /> Profile
-          </button>
-          
-          <button className="flex items-center w-full px-4 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg text-sm text-slate-700 dark:text-slate-300 transition-colors">
-            <Settings className="w-4 h-4 mr-3 opacity-70" /> Settings
-          </button>
-          
           <button 
             onClick={toggleDarkMode}
             className="flex items-center justify-between w-full px-4 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg text-sm text-slate-700 dark:text-slate-300 transition-colors"
@@ -89,6 +101,72 @@ export default function OptionsMenu() {
             <div className={`w-8 h-4 rounded-full transition-colors relative ${isDarkMode ? 'bg-emerald-500' : 'bg-slate-300'}`}>
               <div className={`absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white transition-transform ${isDarkMode ? 'translate-x-4' : ''}`}></div>
             </div>
+          </button>
+
+          <div className="my-1 border-t border-slate-100 dark:border-zinc-800" />
+
+          {/* New Options */}
+          <button 
+            onClick={() => { setActiveModal("manageGroups"); setIsOpen(false); }}
+            className="flex items-center w-full px-4 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg text-sm text-slate-700 dark:text-slate-300 transition-colors"
+          >
+            <Users className="w-4 h-4 mr-3 opacity-70" /> Your Groups
+          </button>
+
+          <button 
+            onClick={() => { setActiveModal("manageWarehouses"); setIsOpen(false); }}
+            className="flex items-center w-full px-4 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg text-sm text-slate-700 dark:text-slate-300 transition-colors"
+          >
+            <Building2 className="w-4 h-4 mr-3 opacity-70" /> Your Warehouses
+          </button>
+
+          <button 
+            onClick={() => { router.push("/dashboard/announcements"); setIsOpen(false); }}
+            className="flex items-center w-full px-4 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg text-sm text-slate-700 dark:text-slate-300 transition-colors"
+          >
+            <Megaphone className="w-4 h-4 mr-3 opacity-70" /> Announcements
+          </button>
+
+          <button 
+            onClick={() => { setActiveModal("createTask"); setIsOpen(false); }}
+            className="flex items-center w-full px-4 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg text-sm text-slate-700 dark:text-slate-300 transition-colors"
+          >
+            <CheckSquare className="w-4 h-4 mr-3 opacity-70" /> My Tasks
+          </button>
+
+          <button 
+            onClick={() => toast.success("Leaves coming soon! 🚀")}
+            className="flex items-center w-full px-4 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg text-sm text-slate-700 dark:text-slate-300 transition-colors"
+          >
+            <Calendar className="w-4 h-4 mr-3 opacity-70" /> Leaves
+          </button>
+
+          <button 
+            onClick={() => toast.success("Short leaves coming soon! 🚀")}
+            className="flex items-center w-full px-4 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg text-sm text-slate-700 dark:text-slate-300 transition-colors"
+          >
+            <Clock className="w-4 h-4 mr-3 opacity-70" /> Short leaves
+          </button>
+
+          <button 
+            onClick={() => toast.success("Loan coming soon! 🚀")}
+            className="flex items-center w-full px-4 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg text-sm text-slate-700 dark:text-slate-300 transition-colors"
+          >
+            <DollarSign className="w-4 h-4 mr-3 opacity-70" /> Loan
+          </button>
+
+          <button 
+            onClick={() => toast.success("Advance Salary coming soon! 🚀")}
+            className="flex items-center w-full px-4 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg text-sm text-slate-700 dark:text-slate-300 transition-colors"
+          >
+            <DollarSign className="w-4 h-4 mr-3 opacity-70" /> Advance Salary
+          </button>
+
+          <button 
+            onClick={() => toast.success("Complaints coming soon! 🚀")}
+            className="flex items-center w-full px-4 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg text-sm text-slate-700 dark:text-slate-300 transition-colors"
+          >
+            <MessageSquare className="w-4 h-4 mr-3 opacity-70" /> Complaints
           </button>
 
           <div className="my-1 border-t border-slate-100 dark:border-zinc-800" />
