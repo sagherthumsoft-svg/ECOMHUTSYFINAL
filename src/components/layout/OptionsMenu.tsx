@@ -15,10 +15,14 @@ import {
   Calendar, 
   Clock, 
   DollarSign, 
-  MessageSquare 
+  MessageSquare,
+  FileSpreadsheet
 } from "lucide-react";
 import { useUserStore } from "@/store/userStore";
 import { useAppStore } from "@/store/appStore";
+import { useChatStore } from "@/store/chatStore";
+import { useGroupStore } from "@/store/groupStore";
+import { useWarehouseStore } from "@/store/warehouseStore";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useClickAway } from "react-use";
@@ -28,6 +32,9 @@ import toast from "react-hot-toast";
 export default function OptionsMenu() {
   const { dbUser, clearSession } = useUserStore();
   const { setActiveModal } = useAppStore();
+  const { setActiveChat } = useChatStore();
+  const { setActiveGroup } = useGroupStore();
+  const { setActiveWarehouse } = useWarehouseStore();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -105,30 +112,60 @@ export default function OptionsMenu() {
 
           <div className="my-1 border-t border-slate-100 dark:border-zinc-800" />
 
-          {/* New Options */}
           <button 
-            onClick={() => { setActiveModal("manageGroups"); setIsOpen(false); }}
+            onClick={() => { 
+              setActiveChat(null);
+              setActiveGroup(null);
+              setActiveWarehouse(null);
+              router.push("/dashboard/groups"); 
+              setIsOpen(false); 
+            }}
             className="flex items-center w-full px-4 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg text-sm text-slate-700 dark:text-slate-300 transition-colors"
           >
             <Users className="w-4 h-4 mr-3 opacity-70" /> Your Groups
           </button>
 
           <button 
-            onClick={() => { setActiveModal("manageWarehouses"); setIsOpen(false); }}
+            onClick={() => { 
+              setActiveChat(null);
+              setActiveGroup(null);
+              setActiveWarehouse(null);
+              router.push("/dashboard/warehouses"); 
+              setIsOpen(false); 
+            }}
             className="flex items-center w-full px-4 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg text-sm text-slate-700 dark:text-slate-300 transition-colors"
           >
             <Building2 className="w-4 h-4 mr-3 opacity-70" /> Your Warehouses
           </button>
 
           <button 
-            onClick={() => { router.push("/dashboard/announcements"); setIsOpen(false); }}
+            onClick={() => { 
+              setActiveChat(null);
+              setActiveGroup(null);
+              setActiveWarehouse(null);
+              router.push("/dashboard/announcements"); 
+              setIsOpen(false); 
+            }}
             className="flex items-center w-full px-4 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg text-sm text-slate-700 dark:text-slate-300 transition-colors"
           >
             <Megaphone className="w-4 h-4 mr-3 opacity-70" /> Announcements
           </button>
 
           <button 
-            onClick={() => { setActiveModal("createTask"); setIsOpen(false); }}
+            onClick={() => { setActiveModal("googleSheets"); setIsOpen(false); }}
+            className="flex items-center w-full px-4 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg text-sm text-slate-700 dark:text-slate-300 transition-colors"
+          >
+            <FileSpreadsheet className="w-4 h-4 mr-3 opacity-70" /> Sheets
+          </button>
+
+          <button 
+            onClick={() => { 
+              setActiveChat(null);
+              setActiveGroup(null);
+              setActiveWarehouse(null);
+              router.push("/dashboard/tasks"); 
+              setIsOpen(false); 
+            }}
             className="flex items-center w-full px-4 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg text-sm text-slate-700 dark:text-slate-300 transition-colors"
           >
             <CheckSquare className="w-4 h-4 mr-3 opacity-70" /> My Tasks
@@ -149,10 +186,10 @@ export default function OptionsMenu() {
           </button>
 
           <button 
-            onClick={() => toast.success("Loan coming soon! 🚀")}
+            onClick={() => toast.success("Loan Apply coming soon! 🚀")}
             className="flex items-center w-full px-4 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg text-sm text-slate-700 dark:text-slate-300 transition-colors"
           >
-            <DollarSign className="w-4 h-4 mr-3 opacity-70" /> Loan
+            <DollarSign className="w-4 h-4 mr-3 opacity-70" /> Loan Apply
           </button>
 
           <button 
