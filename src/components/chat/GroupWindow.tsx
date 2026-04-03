@@ -411,9 +411,9 @@ export default function GroupWindow() {
       mediaRecorder.start();
       setIsRecording(true);
       setRecordingDuration(0);
-      recordingTimerRef.current = setInterval(() => {
+      recordingTimerRef.current = window.setInterval(() => {
         setRecordingDuration((d) => d + 1);
-      }, 1000);
+      }, 1000) as any;
     } catch (e: any) {
       toast.error("Microphone access denied");
     }

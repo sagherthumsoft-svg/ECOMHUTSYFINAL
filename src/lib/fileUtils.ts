@@ -60,7 +60,7 @@ export const downloadFile = async (url: string, fileName: string) => {
     link.click();
     link.remove();
     // Delay revocation to ensure browser captures the download
-    setTimeout(() => window.URL.revokeObjectURL(blobUrl), 100);
+    window.setTimeout(() => window.URL.revokeObjectURL(blobUrl), 100);
   } catch (error) {
     console.warn("Direct blob download failed, trying standard link download behavior:", error);
     // Fallback: Create an anchor tag with the actual URL and a `download` attribute
@@ -71,6 +71,6 @@ export const downloadFile = async (url: string, fileName: string) => {
     link.rel = "noopener noreferrer";
     document.body.appendChild(link);
     link.click();
-    setTimeout(() => document.body.removeChild(link), 100);
+    window.setTimeout(() => document.body.removeChild(link), 100);
   }
 };

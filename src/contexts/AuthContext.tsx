@@ -13,13 +13,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Safety Timeout: Force loading to false after 10 seconds to prevent infinite spinner
-    const timer = setTimeout(() => {
+    const timer = window.setTimeout(() => {
       setLoading(false);
     }, 10000);
 
     if (!auth) {
       setLoading(false);
-      clearTimeout(timer);
+      window.clearTimeout(timer);
       return;
     }
 

@@ -59,7 +59,7 @@ export default function NewChatModal() {
       // FIXED: Added 10-second timeout to prevent indefinite spinner if Firestore hangs (e.g. offline/throttled)
       const fetchPromise = getDocs(q);
       const timeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("fetch_timeout")), 10000)
+        window.setTimeout(() => reject(new Error("fetch_timeout")), 10000)
       );
 
       const snapshot = await Promise.race([fetchPromise, timeoutPromise]) as Awaited<ReturnType<typeof getDocs>>;

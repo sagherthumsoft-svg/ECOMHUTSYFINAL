@@ -10,19 +10,19 @@ export default function Home() {
 
   useEffect(() => {
     // Safety timeout: if loading doesn't resolve in 5s, fallback to login
-    const timer = setTimeout(() => {
+    const timer = window.setTimeout(() => {
       if (isLoading) router.replace("/login");
     }, 5000);
 
     if (!isLoading) {
-      clearTimeout(timer);
+      window.clearTimeout(timer);
       if (authUser) {
         router.replace("/dashboard/chats");
       } else {
         router.replace("/login");
       }
     }
-    return () => clearTimeout(timer);
+    return () => window.clearTimeout(timer);
   }, [isLoading, authUser, router]);
 
   return (

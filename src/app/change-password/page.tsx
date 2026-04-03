@@ -75,7 +75,7 @@ export default function ChangePasswordPage() {
       });
 
       toast.success("Password updated successfully! Redirecting…");
-      setTimeout(() => router.replace("/dashboard/chats"), 1500);
+      window.setTimeout(() => router.replace("/dashboard/chats"), 1500);
     } catch (error: any) {
       console.error(error);
       if (error.code === "auth/wrong-password" || error.code === "auth/invalid-credential") {
