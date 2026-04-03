@@ -1,6 +1,6 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { initializeFirestore } from "firebase/firestore";
+import { initializeFirestore, getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getMessaging, isSupported } from "firebase/messaging";
 import { getAnalytics } from "firebase/analytics";
@@ -20,10 +20,15 @@ const firebaseConfig = {
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 
-// Use initializeFirestore with long polling
-const db = initializeFirestore(app, {
-  experimentalForceLongPolling: true,
-});
+// Get Firestore instance (singleton)
+let db: any;
+try {
+  db = getFirestore(app);
+} catch (e) {
+  db = initializeFirestore(app, {
+    experimentalForceLongPolling: true,
+  });
+}
 
 const storage = getStorage(app);
 

@@ -106,3 +106,113 @@ export interface Notification {
   createdAt: number;
   link?: string;
 }
+
+// ─── HR Module Types ────────────────────────────────────────────────────────
+
+export type EmployeeStatus = "active" | "probation" | "inactive";
+export type LeaveStatus = "pending" | "approved" | "rejected";
+export type LeaveType = "sick" | "casual" | "annual" | "other";
+export type AttendanceStatus = "present" | "absent" | "leave" | "late";
+export type LoanStatus = "active" | "cleared";
+
+export interface Employee {
+  id?: string;
+  employeeId: string;
+  name: string;
+  fatherName: string;
+  phone: string;
+  email: string;
+  cnic?: string;
+  address: string;
+  department: string;
+  role: string;
+  salary: number;
+  joiningDate: string;
+  status: EmployeeStatus;
+  createdAt: number;
+  createdBy: string;
+}
+
+export interface AttendanceRecord {
+  id?: string;
+  employeeId: string;
+  employeeName: string;
+  date: string;         // "YYYY-MM-DD"
+  status: AttendanceStatus;
+  checkInTime?: string;  // "HH:MM"
+  checkOutTime?: string; // "HH:MM"
+  deviceId?: string;
+  office?: string;
+  eventType?: "check_in" | "check_out" | "both";
+  createdAt: number;
+  createdBy: string;
+}
+
+export interface PayrollRecord {
+  id?: string;
+  employeeId: string;
+  employeeName: string;
+  department?: string;
+  month: string;         // "YYYY-MM"
+  baseSalary: number;
+  leaveDays: number;
+  lateDays: number;
+  deductions: number;
+  bonus: number;
+  advanceDeduction: number;
+  loanDeduction: number;
+  finalSalary: number;
+  createdAt: number;
+  createdBy: string;
+}
+
+export interface Leave {
+  id?: string;
+  employeeId: string;
+  employeeName: string;
+  leaveType: LeaveType;
+  startDate: string;
+  endDate: string;
+  reason: string;
+  status: LeaveStatus;
+  createdAt: number;
+  createdBy: string;
+  reviewedBy?: string;
+  reviewedAt?: number;
+}
+
+export interface Notice {
+  id?: string;
+  title: string;
+  description: string;
+  fileUrl?: string;
+  fileName?: string;
+  createdAt: number;
+  createdBy: string;
+  createdByName?: string;
+}
+
+export interface Loan {
+  id?: string;
+  employeeId: string;
+  employeeName: string;
+  type: "loan" | "advance";
+  amount: number;
+  installments: number;
+  monthlyDeduction: number;
+  remainingAmount: number;
+  status: LoanStatus;
+  startMonth: string;
+  createdAt: number;
+  createdBy: string;
+}
+
+export interface ActivityLog {
+  id?: string;
+  action: string;
+  module: string;
+  details: string;
+  userId: string;
+  userName?: string;
+  createdAt: number;
+}

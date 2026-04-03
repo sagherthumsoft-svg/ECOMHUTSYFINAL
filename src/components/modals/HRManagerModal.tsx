@@ -1,100 +1,202 @@
 "use client";
 
-import { X, Briefcase, FileText, Megaphone, UserPlus, Users, DollarSign, Clock, FolderOpen, HeartHandshake } from "lucide-react";
-import toast from "react-hot-toast";
+import { useState, useMemo } from "react";
+import {
+  X,
+  Briefcase,
+  FileText,
+  Megaphone,
+  UserPlus,
+  Users,
+  DollarSign,
+  Clock,
+  FolderOpen,
+  TrendingUp,
+  ChevronLeft,
+  LayoutDashboard,
+  RefreshCw,
+} from "lucide-react";
+import { useUserStore } from "@/store/userStore";
+import { useHRDataSync } from "@/hooks/useHRDataSync";
+
+import HRDashboard from "@/components/hr/HRDashboard";
+import HRNewHiring from "@/components/hr/HRNewHiring";
+import HRStaffManagement from "@/components/hr/HRStaffManagement";
+import HRAttendance from "@/components/hr/HRAttendance";
+import HRSalaries from "@/components/hr/HRSalaries";
+import HRLeaves from "@/components/hr/HRLeaves";
+import HRAdvancesLoans from "@/components/hr/HRAdvancesLoans";
+import HRNotices from "@/components/hr/HRNotices";
+import HRAnnouncements from "@/components/hr/HRAnnouncements";
+import HRRecords from "@/components/hr/HRRecords";
+
+type HRView =
+  | "home"
+  | "hiring"
+  | "staff"
+  | "attendance"
+  | "salaries"
+  | "leaves"
+  | "loans"
+  | "notices"
+  | "announcements"
+  | "records";
 
 interface HRManagerModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+const VIEW_CONFIG: Record<HRView, { title: string; icon: React.ElementType; color: string }> = {
+  home: { title: "HR Manager", icon: LayoutDashboard, color: "text-emerald-600" },
+  hiring: { title: "New Hiring", icon: UserPlus, color: "text-emerald-600" },
+  staff: { title: "Staff Management", icon: Users, color: "text-blue-600" },
+  attendance: { title: "Attendance", icon: Clock, color: "text-red-600" },
+  salaries: { title: "Salaries & Payroll", icon: DollarSign, color: "text-green-600" },
+  leaves: { title: "Leave Management", icon: Clock, color: "text-orange-600" },
+  loans: { title: "Advances & Loans", icon: TrendingUp, color: "text-purple-600" },
+  notices: { title: "Notices", icon: FileText, color: "text-cyan-600" },
+  announcements: { title: "Announcements", icon: Megaphone, color: "text-pink-600" },
+  records: { title: "Record Management", icon: FolderOpen, color: "text-slate-600" },
+};
+
 export default function HRManagerModal({ isOpen, onClose }: HRManagerModalProps) {
+  const { dbUser } = useUserStore();
+  const [currentView, setCurrentView] = useState<HRView>("home");
+
+  const isHRAdmin = useMemo(() =>
+    dbUser?.role && ["owner", "manager", "head"].includes(dbUser.role),
+    [dbUser?.role]);
+
+  const { syncing, runCleanup } = useHRDataSync(!!isHRAdmin);
+
   if (!isOpen) return null;
 
-  const hrFeatures = [
-    { id: "notice", label: "Create Notice", icon: FileText, color: "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400" },
-    { id: "announcement", label: "Create Announcement", icon: Megaphone, color: "bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400" },
-    { id: "hiring", label: "New Hiring", icon: UserPlus, color: "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400" },
-    { id: "staff", label: "Staff Management", icon: Users, color: "bg-orange-50 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400" },
-    { id: "salaries", label: "Salaries", icon: DollarSign, color: "bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400" },
-    { id: "attendance", label: "Attendance", icon: Clock, color: "bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400" },
-    { id: "records", label: "Record Management", icon: FolderOpen, color: "bg-slate-50 text-slate-600 dark:bg-slate-900/20 dark:text-slate-400" },
-  ];
+  const config = VIEW_CONFIG[currentView];
+  const Icon = config.icon;
 
-  const handleFeatureClick = (label: string) => {
-    toast.success(`${label} coming soon! 🚀`, {
-      style: {
-        borderRadius: '10px',
-        background: '#333',
-        color: '#fff',
-      },
-    });
+  const handleNavigate = (view: string) => {
+    setCurrentView(view as HRView);
+  };
+
+  const handleBack = () => {
+    setCurrentView("home");
+  };
+
+  const handleClose = () => {
+    setCurrentView("home");
+    onClose();
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div 
-        className="bg-white dark:bg-[#111b21] rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200"
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm">
+      <div
+        className="bg-white dark:bg-[#111b21] rounded-2xl w-full max-w-6xl shadow-2xl overflow-hidden flex flex-col h-[96vh] sm:h-[95vh] animate-in fade-in zoom-in duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b border-slate-200 dark:border-zinc-800 shrink-0">
-          <div className="flex items-center gap-3 text-xl font-bold text-slate-800 dark:text-slate-100">
-            <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-600/20">
-              <Briefcase className="w-6 h-6 text-white" />
-            </div>
-            HR Manager
-          </div>
-          <button 
-            onClick={onClose} 
-            className="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-full transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
-          <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
-            Welcome to the HR Management portal. Select a feature below to get started. 
-            Note: All features are currently in development.
-          </p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {hrFeatures.map((feature) => (
+        {/* ── Header ──────────────────────────────────────────────────────────── */}
+        <div className="flex justify-between items-center px-5 py-4 border-b border-slate-200 dark:border-zinc-800 shrink-0 bg-white dark:bg-[#111b21]">
+          <div className="flex items-center gap-3">
+            {currentView !== "home" && (
               <button
-                key={feature.id}
-                onClick={() => handleFeatureClick(feature.label)}
-                className="flex flex-col items-center justify-center p-6 bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 rounded-2xl hover:border-emerald-500/50 hover:bg-white dark:hover:bg-zinc-800 transition-all duration-200 group text-center"
+                onClick={handleBack}
+                className="p-1.5 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-full transition-colors mr-1"
+                title="Back to HR Dashboard"
               >
-                <div className={`w-12 h-12 rounded-xl ${feature.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm`}>
-                  <feature.icon className="w-6 h-6" />
-                </div>
-                <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{feature.label}</span>
+                <ChevronLeft className="w-5 h-5" />
               </button>
-            ))}
-            
-            {/* Placeholder for more */}
-            <div className="flex flex-col items-center justify-center p-6 bg-slate-50/50 dark:bg-zinc-800/20 border border-dashed border-slate-200 dark:border-zinc-800 rounded-2xl opacity-60">
-               <HeartHandshake className="w-10 h-10 text-slate-300 dark:text-zinc-700 mb-3" />
-               <span className="text-xs font-medium text-slate-400">More coming soon</span>
+            )}
+
+            <div className="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-600/20 shrink-0">
+              <Briefcase className="w-5 h-5 text-white" />
             </div>
+
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold text-slate-800 dark:text-slate-100">HR Manager</span>
+                {currentView !== "home" && (
+                  <>
+                    <span className="text-slate-300 dark:text-zinc-600 text-sm">›</span>
+                    <span className={`text-sm font-bold ${config.color}`}>{config.title}</span>
+                  </>
+                )}
+              </div>
+              {currentView === "home" && (
+                <p className="text-[11px] text-slate-400">Human Resource Management Portal</p>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Sync Button for Admins on Home View */}
+            {currentView === "home" && isHRAdmin && (
+              <button
+                onClick={runCleanup}
+                disabled={syncing}
+                className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-600 dark:text-slate-300 text-xs font-semibold rounded-lg transition disabled:opacity-50"
+                title="Cleanup invalid departments"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${syncing ? "animate-spin" : ""}`} />
+                {syncing ? "Syncing..." : "Sync Data"}
+              </button>
+            )}
+
+            {/* Quick nav pills for non-home views */}
+            {currentView !== "home" && (
+              <button
+                onClick={handleBack}
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-600 dark:text-slate-300 text-xs font-semibold rounded-lg transition"
+              >
+                <LayoutDashboard className="w-3.5 h-3.5" />
+                HR Dashboard
+              </button>
+            )}
+            <button
+              onClick={handleClose}
+              className="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-full transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="p-4 bg-slate-50 dark:bg-zinc-800/30 border-t border-slate-200 dark:border-zinc-800 flex justify-end">
-          <button
-            onClick={onClose}
-            className="px-6 py-2 bg-slate-200 dark:bg-zinc-700 hover:bg-slate-300 dark:hover:bg-zinc-600 text-slate-800 dark:text-slate-200 font-semibold rounded-xl transition-colors"
-          >
-            Close
-          </button>
+        {/* ── Content Area ─────────────────────────────────────────────────────── */}
+        <div className="flex-1 overflow-hidden">
+          {currentView === "home" && (
+            <HRDashboard onNavigate={handleNavigate} />
+          )}
+          {currentView === "hiring" && (
+            <HRNewHiring onSuccess={() => setCurrentView("staff")} />
+          )}
+          {currentView === "staff" && (
+            <HRStaffManagement />
+          )}
+          {currentView === "attendance" && (
+            <HRAttendance />
+          )}
+          {currentView === "salaries" && (
+            <HRSalaries />
+          )}
+          {currentView === "leaves" && (
+            <HRLeaves />
+          )}
+          {currentView === "loans" && (
+            <HRAdvancesLoans />
+          )}
+          {currentView === "notices" && (
+            <HRNotices />
+          )}
+          {currentView === "announcements" && (
+            <HRAnnouncements />
+          )}
+          {currentView === "records" && (
+            <HRRecords />
+          )}
         </div>
       </div>
-      
-      {/* Click outside backdrop to close */}
-      <div className="absolute inset-0 -z-10" onClick={onClose} />
+
+      {/* Click outside to close */}
+      <div className="absolute inset-0 -z-10" onClick={handleClose} />
     </div>
   );
 }

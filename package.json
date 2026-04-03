@@ -10,6 +10,11 @@
   },
   "dependencies": {
     "@expo/metro-runtime": "~55.0.6",
+    "@heroui/react": "^3.0.2",
+    "@internationalized/date": "^3.7.0",
+    "@hookform/resolvers": "^5.2.2",
+    "@types/nodemailer": "^7.0.11",
+    "axios": "^1.14.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "emoji-picker-react": "^4.18.0",
@@ -22,12 +27,16 @@
     "googleapis": "^171.4.0",
     "lucide-react": "^0.577.0",
     "next": "16.1.6",
+    "nodemailer": "^8.0.4",
     "react": "19.2.3",
     "react-dom": "19.2.0",
+    "react-hook-form": "^7.72.1",
     "react-hot-toast": "^2.6.0",
     "react-native-web": "^0.21.0",
+    "react-phone-input-2": "^2.15.1",
     "react-use": "^17.6.0",
     "tailwind-merge": "^3.5.0",
+    "zod": "^4.3.6",
     "zustand": "^5.0.11"
   },
   "devDependencies": {

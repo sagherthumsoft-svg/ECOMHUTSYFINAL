@@ -34,7 +34,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const docSnap = await getDoc(docRef);
 
             if (docSnap.exists()) {
-              setDbUser({ uid: docSnap.id, ...docSnap.data() } as User);
+              const userData = { uid: docSnap.id, ...docSnap.data() } as User;
+              setDbUser(userData);
+
+              // ── Force password reset on first login ──────────────────────
+              if ((docSnap.data() as any).mustChangePassword === true) {
+                if (
+                  typeof window !== "undefined" &&
+                  !window.location.pathname.startsWith("/change-password")
+                ) {
+                  window.location.replace("/change-password");
+                }
+              }
             } else {
               // User authenticated but has no Firestore profile.
               await signOut(auth);

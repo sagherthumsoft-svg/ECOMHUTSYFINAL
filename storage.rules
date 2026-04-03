@@ -1,9 +1,14 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
+    // Allow unauthenticated applicants to upload and read back their registration documents
+    match /pending_uploads/{submissionId}/{fileName} {
+      allow write: if request.resource.size < 10 * 1024 * 1024; // max 10MB
+      allow read: if true; 
+    }
+
     match /{allPaths=**} {
-      // Allow read/write for all authenticated users for MVP
-      // Strict rule would mean matching chat paths to users
+      // Allow read/write for all authenticated users for other paths
       allow read, write: if request.auth != null;
     }
   }

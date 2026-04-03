@@ -32,7 +32,7 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow read: if isAuthenticated();
-      allow create: if isAdmin();
+      allow create: if isAdmin() || (isAuthenticated() && uid() == userId && request.resource.data.role == 'team_member');
       allow update: if isAuthenticated() && (uid() == userId || isAdmin());
       allow delete: if isOwner();
 
@@ -182,6 +182,90 @@ service cloud.firestore {
     match /settings/permissions {
       allow read: if isAuthenticated();
       allow write: if isOwner();
+    }
+
+    // ── HR Management System ──────────────────────────────────────────────────
+    
+    // Helper for HR access: Owners, Managers, and Heads
+    function isHR() {
+      return isAdmin();
+    }
+
+    // Employees Collection
+    match /employees/{employeeId} {
+      allow read: if isAuthenticated();
+      allow write: if isHR();
+    }
+
+    // Attendance Collection
+    match /attendance/{attendanceId} {
+      allow read: if isAuthenticated();
+      allow write: if isHR();
+    }
+
+    // Payroll Collection
+    match /payroll/{payrollId} {
+      allow read: if isAuthenticated();
+      allow write: if isHR();
+    }
+
+    // Leaves Collection
+    match /leaves/{leaveId} {
+      allow read: if isAuthenticated();
+      allow write: if isHR();
+    }
+
+    // Notices Collection
+    match /notices/{noticeId} {
+      allow read: if isAuthenticated();
+      allow write: if isHR();
+    }
+
+    // Loans & Advances Collection
+    match /loans/{loanId} {
+      allow read: if isAuthenticated();
+      allow write: if isHR();
+    }
+
+    // Activity Logs
+    match /activityLogs/{logId} {
+      allow read: if isHR();
+      allow create: if isAuthenticated(); // Allow logging actions
+      allow update, delete: if isOwner();
+    }
+
+    // HR Config and Counters
+    match /settings/hrCounters {
+      allow read, write: if isHR();
+    }
+    match /settings/hrConfig {
+      allow read: if isAuthenticated();
+      allow write: if isHR();
+    }
+
+    // ── Pending Users (Registration Applications) ─────────────────────────────
+    // Anyone (unauthenticated) can CREATE their own application.
+    // Only HR/Admin can READ and UPDATE applications (approve/reject).
+    // DELETE is forbidden from the client — Admin SDK only.
+
+    match /pending_users/{submissionId} {
+      // Allow public create so unauthenticated applicants can submit
+      allow create: if true;
+
+      // Only HR/Admin can read all submissions
+      allow read: if isAuthenticated() && isHR();
+
+      // Only HR/Admin can update status (approve/reject)
+      allow update: if isAuthenticated() && isHR();
+
+      // Prevent client deletions
+      allow delete: if false;
+    }
+
+    // ── Storage Usage Tracking ────────────────────────────────────────────────
+    match /settings/storageCounters {
+      allow read: if isAuthenticated();
+      allow write: if isHR();
     }
   }
 }

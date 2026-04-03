@@ -3,7 +3,7 @@
 import { useUserStore } from "@/store/userStore";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithPopup, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase";
 import toast from "react-hot-toast";
 
@@ -50,6 +50,26 @@ export default function LoginPage() {
     } catch (error: any) {
       console.error(error);
       toast.error(error.message || "Failed to sign in");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      return toast.error("Please enter your email address first");
+    }
+    if (!auth) {
+      return toast.error("Authentication is currently unavailable");
+    }
+
+    setLoading(true);
+    try {
+      await sendPasswordResetEmail(auth, email);
+      toast.success("Password reset email sent! Check your inbox.");
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message || "Failed to send reset email");
     } finally {
       setLoading(false);
     }
@@ -121,15 +141,24 @@ export default function LoginPage() {
                 className="block w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
               />
             </div>
-            <div>
+            <div className="space-y-1">
               <input
                 type="password"
-                required
+                required={!loading}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
                 className="block w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
               />
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  className="text-xs font-medium text-emerald-600 hover:text-emerald-500 transition-colors"
+                >
+                  Forgot password?
+                </button>
+              </div>
             </div>
             <button
               type="submit"
@@ -139,6 +168,18 @@ export default function LoginPage() {
               Sign In
             </button>
           </form>
+
+          <div className="text-center">
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              Don't have an account?{" "}
+              <button
+                onClick={() => router.push("/signup")}
+                className="font-medium text-emerald-600 hover:text-emerald-500 transition-colors"
+              >
+                Sign up
+              </button>
+            </p>
+          </div>
         </div>
       </div>
     </div>
