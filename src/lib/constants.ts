@@ -42,4 +42,5 @@ export const TEAMS = [
   "M Waseel",
   "Abdul Rehman",
   "Madam Kazima",
+  "support team",
 ] as const;
