@@ -103,10 +103,10 @@ export const step5Schema = z.object({
     .string()
     .regex(ibanRegex, "IBAN must follow format: PK36SCBL0000001123456702"),
   designation: z.string().min(2, "Designation is required"),
-  reportingManager: z.enum(TEAMS, {
+  reportingManager: z.string().refine((val) => TEAMS.includes(val as any), {
     message: "Please select a valid Reporting Head",
   }),
-  teamName: z.enum(TEAMS, {
+  teamName: z.string().refine((val) => TEAMS.includes(val as any), {
     message: "Please select a valid Team",
   }),
 });
