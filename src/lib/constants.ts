@@ -34,10 +34,12 @@ export const PAKISTANI_BANKS = [
 ] as const;
 
 export const TEAMS = [
-  "Sajid Team",
-  "Zain Team",
-  "Asim Team",
-  "Awais Yousaf Team",
-  "Kashif Team",
-  "Waseel Team",
+  "Sajid Iqbal",
+  "Zain shaukat",
+  "Muhammad Asim",
+  "Awais Yousaf",
+  "M Kashif",
+  "M Waseel",
+  "Abdul Rehman",
+  "Madam Kazima",
 ] as const;
