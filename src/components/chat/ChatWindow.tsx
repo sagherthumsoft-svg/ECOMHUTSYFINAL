@@ -408,9 +408,9 @@ export default function ChatWindow() {
       mediaRecorderRef.current = recorder;
       setIsRecording(true);
       setRecordingDuration(0);
-      recordingTimerRef.current = setInterval(() => {
+      recordingTimerRef.current = window.setInterval(() => {
         setRecordingDuration((p) => p + 1);
-      }, 1000);
+      }, 1000) as any;
     } catch (err) {
       console.error("Mic error:", err);
     }
