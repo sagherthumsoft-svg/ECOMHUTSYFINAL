@@ -57,11 +57,18 @@ export async function submitRegistration(
     (p) => onProgress?.("Uploading profile photo...", p)
   );
 
-  onProgress?.("Uploading CNIC copy...", 0);
-  const cnicCopyUrl = await uploadFile(
-    data.step3.cnicCopy!,
-    `${basePath}/cnic_copy`,
-    (p) => onProgress?.("Uploading CNIC copy...", p)
+  onProgress?.("Uploading CNIC Front...", 0);
+  const cnicFrontUrl = await uploadFile(
+    data.step3.cnicFront!,
+    `${basePath}/cnic_front`,
+    (p) => onProgress?.("Uploading CNIC Front...", p)
+  );
+
+  onProgress?.("Uploading CNIC Back...", 0);
+  const cnicBackUrl = await uploadFile(
+    data.step3.cnicBack!,
+    `${basePath}/cnic_back`,
+    (p) => onProgress?.("Uploading CNIC Back...", p)
   );
 
   onProgress?.("Uploading guardian CNIC...", 0);
@@ -116,7 +123,8 @@ export async function submitRegistration(
     personalEmail: data.step2.personalEmail,
     address: data.step2.address,
 
-    cnicCopyUrl,
+    cnicFrontUrl,
+    cnicBackUrl,
     guardianCnicCopyUrl,
     lastDegreeCertificateUrl,
     employmentFormUrl,

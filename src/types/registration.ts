@@ -16,14 +16,16 @@ export interface Step2Data {
 }
 
 export interface Step3Data {
-  cnicCopy: File | null;
+  cnicFront: File | null;
+  cnicBack: File | null;
   guardianCnicCopy: File | null;
   lastDegreeCertificate: File | null;
   employmentForm: File | null;
   employmentContract: File | null;
   professionalPicture: File | null;
   // URLs after upload
-  cnicCopyUrl?: string;
+  cnicFrontUrl?: string;
+  cnicBackUrl?: string;
   guardianCnicCopyUrl?: string;
   lastDegreeCertificateUrl?: string;
   employmentFormUrl?: string;
@@ -80,7 +82,8 @@ export interface PendingUser {
   personalEmail: string;
   address: string;
 
-  cnicCopyUrl: string;
+  cnicFrontUrl: string;
+  cnicBackUrl: string;
   guardianCnicCopyUrl: string;
   lastDegreeCertificateUrl: string;
   employmentFormUrl: string;

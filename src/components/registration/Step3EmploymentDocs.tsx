@@ -13,7 +13,8 @@ interface Step3Props {
 }
 
 const DOC_FIELDS: { key: keyof Step3Data; label: string; accept?: string; acceptLabel?: string; isImage?: boolean }[] = [
-  { key: "cnicCopy", label: "CNIC Copy (Front & Back)", acceptLabel: "JPG, PNG or PDF" },
+  { key: "cnicFront", label: "CNIC Front Photo", acceptLabel: "JPG, PNG or PDF" },
+  { key: "cnicBack", label: "CNIC Back Photo", acceptLabel: "JPG, PNG or PDF" },
   { key: "guardianCnicCopy", label: "Guardian CNIC Copy", acceptLabel: "JPG, PNG or PDF" },
   {
     key: "lastDegreeCertificate",
@@ -43,7 +44,8 @@ export default function Step3EmploymentDocs({ initialData, onNext, onBack }: Ste
   const handleNext = () => {
     const newErrors: Partial<Record<keyof Step3Data, string>> = {};
     const fileKeys: (keyof Step3Data)[] = [
-      "cnicCopy",
+      "cnicFront",
+      "cnicBack",
       "guardianCnicCopy",
       "lastDegreeCertificate",
       "employmentForm",

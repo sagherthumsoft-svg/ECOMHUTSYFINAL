@@ -42,6 +42,8 @@ export default function HRSalaries() {
   const [generating, setGenerating] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [selectedPayslip, setSelectedPayslip] = useState<PayrollRecord | null>(null);
+  const [editingRecord, setEditingRecord] = useState<PayrollRecord | null>(null);
+  const [updating, setUpdating] = useState(false);
 
   // Map of employeeId -> payroll record for selected month
   const payrollMap = new Map(records.map((r) => [r.employeeId, r]));
@@ -129,6 +131,30 @@ export default function HRSalaries() {
       toast.error(err.message || "Failed to generate payroll");
     } finally {
       setGenerating(false);
+    }
+  };
+
+  const updatePayroll = async (id: string, updates: Partial<PayrollRecord>) => {
+    setUpdating(true);
+    try {
+      const finalSalary = (updates.baseSalary || editingRecord?.baseSalary || 0) 
+        + (updates.bonus ?? editingRecord?.bonus ?? 0)
+        - (updates.deductions ?? editingRecord?.deductions ?? 0)
+        - (updates.loanDeduction ?? editingRecord?.loanDeduction ?? 0);
+
+      const finalUpdates = { ...updates, finalSalary };
+      
+      await import("firebase/firestore").then(async ({ updateDoc, doc }) => {
+        await updateDoc(doc(db, "payroll", id), finalUpdates);
+      });
+
+      await logActivity("UPDATE", "payroll", `Updated payroll for ${editingRecord?.employeeName} (${editingRecord?.month})`, dbUser?.uid || "", dbUser?.name);
+      toast.success("Payroll updated selectively");
+      setEditingRecord(null);
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -267,6 +293,13 @@ export default function HRSalaries() {
                             <Printer className="w-4 h-4" />
                           </button>
                           <button
+                            onClick={() => setEditingRecord(record)}
+                            className="p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors"
+                            title="Edit Record"
+                          >
+                            <Plus className="w-4 h-4 rotate-45" />
+                          </button>
+                          <button
                             onClick={() => deletePayroll(record)}
                             disabled={deletingId === record.id}
                             className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors disabled:opacity-50"
@@ -332,6 +365,60 @@ export default function HRSalaries() {
                 <Printer className="w-4 h-4" /> Print Payslip
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {/* Edit Record Modal */}
+      {editingRecord && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden">
+            <div className="p-6 border-b border-slate-100 dark:border-zinc-800">
+              <h2 className="text-xl font-bold text-slate-800 dark:text-white">Adjust Payroll</h2>
+              <p className="text-sm text-slate-500">For {editingRecord.employeeName}</p>
+            </div>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              updatePayroll(editingRecord.id!, {
+                bonus: Number(formData.get("bonus")),
+                deductions: Number(formData.get("deductions")),
+              });
+            }} className="p-6 space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Bonus Amount</label>
+                <input
+                  name="bonus"
+                  type="number"
+                  defaultValue={editingRecord.bonus}
+                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-slate-800 dark:text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Other Deductions</label>
+                <input
+                  name="deductions"
+                  type="number"
+                  defaultValue={editingRecord.deductions}
+                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-slate-800 dark:text-white"
+                />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingRecord(null)}
+                  className="flex-1 py-2.5 text-slate-600 font-semibold hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-xl transition text-sm"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={updating}
+                  className="flex-[2] py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-200 dark:shadow-emerald-900/40"
+                >
+                  {updating ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save Changes"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

@@ -13,6 +13,7 @@ import Step3EmploymentDocs from "@/components/registration/Step3EmploymentDocs";
 import Step4GuardianDetails from "@/components/registration/Step4GuardianDetails";
 import Step5BankingInfo from "@/components/registration/Step5BankingInfo";
 import RegistrationSuccess from "@/components/registration/RegistrationSuccess";
+import RequirementsModal from "@/components/registration/RequirementsModal";
 
 import { submitRegistration, hasPendingSubmission } from "@/lib/registrationService";
 import { RegistrationFormData } from "@/types/registration";
@@ -32,7 +33,7 @@ const defaultStep2: Step2FormData = {
   mobileNumber: "", personalEmail: "", address: "",
 };
 const defaultStep3: Step3Data = {
-  cnicCopy: null, guardianCnicCopy: null, lastDegreeCertificate: null,
+  cnicFront: null, cnicBack: null, guardianCnicCopy: null, lastDegreeCertificate: null,
   employmentForm: null, employmentContract: null, professionalPicture: null,
 };
 const defaultStep4: Step4FormData = {
@@ -60,6 +61,7 @@ export default function SignupPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadStatus, setUploadStatus] = useState("");
   const [submissionId, setSubmissionId] = useState<string | null>(null);
+  const [showRequirements, setShowRequirements] = useState(true);
 
   // Accumulated form data
   const [step1Data, setStep1Data] = useState<{ profileImage: File | null }>(defaultStep1);
@@ -145,6 +147,15 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/20 dark:from-zinc-950 dark:via-emerald-950/10 dark:to-zinc-900 flex items-start justify-center p-4 py-10">
+      <AnimatePresence>
+        {showRequirements && (
+          <RequirementsModal 
+            onConfirm={() => setShowRequirements(false)}
+            onCancel={() => router.push("/login")}
+          />
+        )}
+      </AnimatePresence>
+
       <div className="w-full max-w-lg">
         {/* Header card */}
         <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl shadow-slate-200/80 dark:shadow-zinc-900/80 overflow-hidden">
@@ -230,6 +241,13 @@ export default function SignupPage() {
                   <RegistrationSuccess
                     submissionId={submissionId}
                     email={step2Data.personalEmail}
+                    formData={{
+                      step1: step1Data,
+                      step2: step2Data,
+                      step3: step3Data,
+                      step4: step4Data,
+                      step5: step5Data,
+                    }}
                   />
                 )}
               </motion.div>
