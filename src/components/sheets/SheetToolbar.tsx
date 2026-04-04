@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Download, FileDown, PlusCircle, Trash2, Users } from "lucide-react";
 import { useUserStore } from "@/store/userStore";
+import { isAdmin, cn } from "@/lib/utils";
 import toast from "react-hot-toast";
 import { GoogleSheet } from "@/types/sheets";
 
@@ -17,14 +18,12 @@ export default function SheetToolbar({ sheet, onAssign, onDelete }: SheetToolbar
   const [exporting, setExporting] = useState(false);
 
   const canEdit = 
-       dbUser?.role === "owner" || 
-       dbUser?.role === "head" || 
+       isAdmin(dbUser?.role) || 
        sheet.createdBy === dbUser?.uid || 
        sheet.permissions?.canEdit?.includes(dbUser?.uid || "");
 
   const canDelete = 
-       dbUser?.role === "owner" || 
-       dbUser?.role === "head" || 
+       isAdmin(dbUser?.role) || 
        sheet.createdBy === dbUser?.uid;
 
   const handleExport = async (format: "csv" | "xlsx" | "pdf") => {

@@ -5,6 +5,7 @@ import { Plus, Search, FileSpreadsheet } from "lucide-react";
 import { collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useUserStore } from "@/store/userStore";
+import { isAdmin } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { GoogleSheet } from "@/types/sheets";
 
@@ -34,7 +35,7 @@ export default function SheetsSidebar({ onSelectSheet, selectedSheetId, onCreate
       const allSheets = snapshot.docs.map(doc => ({ id: doc.id, ...(doc.data() as any) })) as GoogleSheet[];
 
       // Filter based on access permissions
-      const isSuper = dbUser.role === "owner" || dbUser.role === "head";
+      const isSuper = isAdmin(dbUser.role);
       const accessibleSheets = allSheets.filter(sheet => {
         return isSuper ||
           sheet.createdBy === dbUser.uid ||

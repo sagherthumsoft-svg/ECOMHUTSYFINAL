@@ -3,7 +3,7 @@
 import { useUserStore } from "@/store/userStore";
 import { useAppStore } from "@/store/appStore";
 import { usePermissionStore, FeatureKey } from "@/store/permissionStore";
-import { cn } from "@/lib/utils";
+import { cn, isAdmin } from "@/lib/utils";
 import CreateUserModal from "@/components/modals/CreateUserModal";
 import ManageUsersModal from "@/components/modals/ManageUsersModal";
 import CreateGroupModal from "@/components/modals/CreateGroupModal";
@@ -57,11 +57,13 @@ export default function OwnerDrawer({
 
   const filteredActions = actionList.filter(item => {
     if (!dbUser?.role) return false;
-    if (dbUser.role === "owner") return true;
-    if (item.feature === "manageAccess") return false; // Only owner sees Manage Access
     
-    const rolePermissions = permissions[dbUser.role as Exclude<typeof dbUser.role, "owner">];
-    return rolePermissions?.[item.feature as FeatureKey];
+    // Unified administrative roles bypass specific feature bits
+    if (isAdmin(dbUser.role)) return true;
+    
+    // Team member role uses predefined permissions from Firestore
+    const rolePermissions = permissions[dbUser.role as Exclude<typeof dbUser.role, "owner" | "head" | "manager">];
+    return (rolePermissions as any)?.[item.feature as any];
   });
 
   const closeModals = () => setActiveModal(null);

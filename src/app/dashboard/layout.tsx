@@ -20,6 +20,7 @@ import ReportsModal from "@/components/modals/ReportsModal";
 import { useAppStore } from "@/store/appStore";
 import { usePermissionStore } from "@/store/permissionStore";
 import { useMigration } from "@/hooks/useMigration";
+import { isAdmin } from "@/lib/utils";
 
 export default function DashboardLayout({
   children,
@@ -86,7 +87,7 @@ export default function DashboardLayout({
       <ReportsModal isOpen={activeModal === "reports"} onClose={closeModals} />
 
       {/* Drawer */}
-      {(dbUser.role === "owner" || dbUser.role === "head" || dbUser.role === "manager") && (
+      {isAdmin(dbUser.role) && (
         <OwnerDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} />
       )}
     </div>

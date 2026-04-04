@@ -6,6 +6,7 @@ import { db, auth } from "@/lib/firebase";
 import { useUserStore } from "@/store/userStore";
 import { EmployeeStatus } from "@/types";
 import { generateEmployeeId, logActivity, createNotification } from "@/lib/hrUtils";
+import { isAdmin, cn } from "@/lib/utils";
 import {
   Loader2, UserPlus, ChevronRight, Clock, CheckCircle, XCircle,
   FileText, Eye, X, Download, User, Phone, Mail, MapPin, Printer, FilePlus2,
@@ -34,6 +35,7 @@ function PendingApplicationModal({
   onReject,
   onUpdate,
   actionLoading,
+  role,
 }: {
   app: PendingUser;
   onClose: () => void;
@@ -41,6 +43,7 @@ function PendingApplicationModal({
   onReject: (id: string, reason: string) => void;
   onUpdate: (id: string, data: Partial<PendingUser>) => Promise<void>;
   actionLoading: boolean;
+  role?: string;
 }) {
   const [rejectMode, setRejectMode] = useState(false);
   const [editMode, setEditMode] = useState(false);
@@ -79,56 +82,76 @@ function PendingApplicationModal({
     </div>
   );
 
-  const InfoRow = ({ icon: Icon, label, value, field }: { icon: any; label: string; value: string; field?: keyof PendingUser }) => (
-    <div className="flex items-start gap-3 group">
-      <div className="w-8 h-8 bg-slate-100 dark:bg-zinc-800 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-50 dark:group-hover:bg-emerald-900/20 transition-colors">
-        <Icon size={14} className="text-slate-400 group-hover:text-emerald-500 transition-colors" />
-      </div>
-      <div className="flex-1">
-        <p className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">{label}</p>
-        {editMode && field ? (
-          <input
-            type="text"
-            className="w-full mt-0.5 text-sm font-semibold bg-white dark:bg-zinc-800 border-b border-emerald-500 focus:outline-none text-slate-900 dark:text-white"
-            value={(editData as any)[field] || ""}
-            onChange={(e) => setEditData({ ...editData, [field]: e.target.value })}
-          />
-        ) : (
-          <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 mt-0.5 leading-snug">{value || "—"}</p>
+  const InfoRow = ({ icon: Icon, label, value, field }: { icon: any; label: string; value: string; field?: keyof PendingUser }) => {
+    const isEditable = editMode && field;
+    
+    return (
+      <div 
+        className={cn(
+          "flex items-start gap-4 p-3 rounded-2xl transition-all duration-300 group",
+          isEditable ? "bg-emerald-50/50 dark:bg-emerald-900/10 ring-1 ring-emerald-200 dark:ring-emerald-800" : "hover:bg-slate-50 dark:hover:bg-zinc-800/40"
         )}
+      >
+        <div className="w-10 h-10 bg-white dark:bg-zinc-800 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform">
+          <Icon size={18} className={cn("transition-colors", isEditable ? "text-emerald-500" : "text-slate-400 group-hover:text-emerald-500")} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest font-black mb-0.5">{label}</p>
+          {isEditable ? (
+            <input
+              type="text"
+              autoFocus
+              className="w-full text-sm font-bold bg-transparent border-b-2 border-emerald-500 focus:outline-none text-slate-900 dark:text-white"
+              value={(editData as any)[field] || ""}
+              onChange={(e) => setEditData({ ...editData, [field]: e.target.value })}
+            />
+          ) : (
+            <p className="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">{value || "Not Entered"}</p>
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 text-slate-900">
       <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm no-print" onClick={onClose} />
 
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        initial={{ opacity: 0, scale: 0.9, y: 40 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative w-full max-w-4xl bg-white dark:bg-zinc-900 shadow-2xl rounded-3xl overflow-hidden flex flex-col max-h-[90vh] no-print"
+        className="relative w-full max-w-5xl bg-white/90 dark:bg-zinc-900/90 backdrop-blur-2xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] dark:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] rounded-[32px] overflow-hidden flex flex-col max-h-[92vh] border border-white/20 dark:border-zinc-800 no-print"
       >
         {/* Header */}
-        <div className="px-8 py-5 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between bg-white dark:bg-zinc-900">
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              {app.profileImageUrl ? (
-                <img src={app.profileImageUrl} alt={app.fullName} className="w-12 h-12 rounded-2xl object-cover shadow-sm" />
-              ) : (
-                <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-2xl flex items-center justify-center">
-                  <User size={22} className="text-emerald-600" />
-                </div>
-              )}
-              <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white dark:border-zinc-900 ${app.status === "pending" ? "bg-amber-400" : app.status === "approved" ? "bg-emerald-500" : "bg-red-500"}`} />
+        <div className="px-10 py-6 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md">
+          <div className="flex items-center gap-5">
+            <div className="relative group">
+              <div className="absolute -inset-1 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-500"></div>
+              <div className="relative">
+                {app.profileImageUrl ? (
+                  <img src={app.profileImageUrl} alt={app.fullName} className="w-14 h-14 rounded-2xl object-cover shadow-md ring-2 ring-white dark:ring-zinc-800" />
+                ) : (
+                  <div className="w-14 h-14 bg-emerald-100 dark:bg-emerald-900/30 rounded-2xl flex items-center justify-center ring-2 ring-white dark:ring-zinc-800">
+                    <User size={26} className="text-emerald-600" />
+                  </div>
+                )}
+                <motion.div 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className={cn(
+                    "absolute -bottom-1.5 -right-1.5 w-5 h-5 rounded-full border-[3px] border-white dark:border-zinc-900 shadow-sm",
+                    app.status === "pending" ? "bg-amber-400" : app.status === "approved" ? "bg-emerald-500" : "bg-red-500"
+                  )} 
+                />
+              </div>
             </div>
             <div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-tight">
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white leading-tight tracking-tight">
                 {editMode ? (
                   <div className="flex gap-2">
                     <input
-                      className="w-32 bg-emerald-50 dark:bg-emerald-950/30 border-b border-emerald-500 outline-none px-1"
+                      className="w-40 bg-emerald-50/50 dark:bg-emerald-950/30 border-b-2 border-emerald-500 outline-none px-2 py-1 rounded-sm"
                       value={editData.firstName || ""}
                       placeholder="First Name"
                       onChange={(e) => {
@@ -141,7 +164,7 @@ function PendingApplicationModal({
                       }}
                     />
                     <input
-                      className="w-32 bg-emerald-50 dark:bg-emerald-950/30 border-b border-emerald-500 outline-none px-1"
+                      className="w-40 bg-emerald-50/50 dark:bg-emerald-950/30 border-b-2 border-emerald-500 outline-none px-2 py-1 rounded-sm"
                       value={editData.lastName || ""}
                       placeholder="Last Name"
                       onChange={(e) => {
@@ -156,28 +179,37 @@ function PendingApplicationModal({
                   </div>
                 ) : app.fullName}
               </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Application details for {app.personalEmail}</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-[0.1em] mt-1 opacity-70">
+                Application Review • Reference ID: <span className="font-mono">{app.id?.slice(-8)}</span>
+              </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <button
               onClick={handlePrint}
-              className="p-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 transition-all shadow-sm"
+              className="p-3 rounded-2xl bg-white dark:bg-zinc-800 text-slate-500 dark:text-slate-400 hover:text-emerald-600 hover:shadow-lg transition-all border border-slate-100 dark:border-zinc-700"
               title="Print Application"
             >
-              <Printer size={18} />
+              <Printer size={20} />
             </button>
-            <button
-              onClick={() => setEditMode(!editMode)}
-              className={`p-2.5 rounded-xl transition-all shadow-sm ${editMode ? "bg-emerald-600 text-white" : "bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-400 hover:bg-emerald-50 hover:text-emerald-600"}`}
-              title="Edit Application"
-            >
-              <FilePlus2 size={18} />
-            </button>
-            <div className="w-px h-6 bg-slate-200 dark:bg-zinc-700 mx-1" />
-            <button onClick={onClose} className="p-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all shadow-sm">
-              <X size={18} />
+            {isAdmin(role) && (
+              <button
+                onClick={() => setEditMode(!editMode)}
+                className={cn(
+                  "p-3 rounded-2xl transition-all border shadow-sm",
+                  editMode 
+                    ? "bg-emerald-600 border-emerald-500 text-white shadow-emerald-200" 
+                    : "bg-white dark:bg-zinc-800 border-slate-100 dark:border-zinc-700 text-slate-500 dark:text-slate-400 hover:text-emerald-600"
+                )}
+                title="Edit Application"
+              >
+                <FilePlus2 size={20} />
+              </button>
+            )}
+            <div className="w-px h-8 bg-slate-200 dark:bg-zinc-700 mx-2" />
+            <button onClick={onClose} className="p-3 rounded-2xl bg-white dark:bg-zinc-800 text-slate-400 hover:text-red-500 transition-all border border-slate-100 dark:border-zinc-700">
+              <X size={20} />
             </button>
           </div>
         </div>
@@ -261,7 +293,7 @@ function PendingApplicationModal({
         {/* Footer Actions */}
         <div className="px-8 py-5 border-t border-slate-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex justify-between items-center">
           <div className="flex gap-3">
-            {app.status === "pending" && !editMode && (
+            {app.status === "pending" && !editMode && isAdmin(role) && (
               <>
                 {!rejectMode ? (
                   <div className="flex gap-2">
@@ -722,6 +754,7 @@ export default function HRNewHiring({ onSuccess }: HRNewHiringProps) {
             onReject={handleReject}
             onUpdate={handleUpdateSubmission}
             actionLoading={actionLoading}
+            role={dbUser?.role}
           />
         )}
       </AnimatePresence>

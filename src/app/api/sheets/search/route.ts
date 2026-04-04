@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { adminAuth, adminDb } from "@/lib/firebaseAdmin";
+import { adminAuth, adminDb, isAdminRole } from "@/lib/firebaseAdmin";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     const sheets: any[] = [];
     const userRef = await adminDb.collection("users").doc(decodedToken.uid).get();
     const role = userRef.data()?.role;
-    const isSuper = role === "owner" || role === "head";
+    const isSuper = isAdminRole(role);
 
     const searchLower = query.toLowerCase();
 

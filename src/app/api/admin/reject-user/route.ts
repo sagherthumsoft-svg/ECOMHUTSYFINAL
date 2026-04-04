@@ -10,7 +10,7 @@ async function verifyHRUser(req: NextRequest): Promise<string | null> {
     const decoded = await adminAuth.verifyIdToken(token);
     const userDoc = await adminDb.collection("users").doc(decoded.uid).get();
     const role = userDoc.data()?.role;
-    if (["hr_manager", "admin", "owner"].includes(role)) {
+    if (["hr_manager", "admin", "owner", "head", "manager"].includes(role)) {
       return decoded.uid;
     }
     return null;

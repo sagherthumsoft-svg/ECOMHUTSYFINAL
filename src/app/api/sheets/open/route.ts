@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { adminAuth, adminDb } from "@/lib/firebaseAdmin";
+import { adminAuth, adminDb, isAdminRole } from "@/lib/firebaseAdmin";
 
 export const dynamic = "force-dynamic";
 import { getDrive } from "@/lib/google/config";
@@ -49,7 +49,7 @@ export async function POST(req: Request) {
     const canEdit = permissions.canEdit || [];
     const canView = permissions.canView || [];
     const isOwner = sheetData?.createdBy === decodedToken.uid;
-    const isSuper = userData?.role === "owner" || userData?.role === "head";
+    const isSuper = isAdminRole(userData?.role);
 
     const isAuthorized = 
         isSuper ||

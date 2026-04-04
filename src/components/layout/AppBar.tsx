@@ -2,7 +2,7 @@
 
 import { useUserStore } from "@/store/userStore";
 import { usePathname, useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { cn, isAdmin } from "@/lib/utils";
 import { Menu, Search } from "lucide-react";
 import NotificationsMenu from "@/components/layout/NotificationsMenu";
 import OptionsMenu from "@/components/layout/OptionsMenu";
@@ -182,7 +182,7 @@ export default function AppBar({ onMenuClick }: { onMenuClick: () => void }) {
 
   const tabs = allTabs.filter((tab) => {
     if (!dbUser?.role) return false;
-    if (dbUser.role === "owner") return true;
+    if (isAdmin(dbUser.role)) return true;
     
     const rolePermissions = permissions[dbUser.role as Exclude<typeof dbUser.role, "owner">];
     return rolePermissions?.[tab.feature as FeatureKey];

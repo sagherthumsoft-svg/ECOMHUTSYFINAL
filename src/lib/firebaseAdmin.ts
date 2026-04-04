@@ -33,3 +33,7 @@ const app: App = getApps().length === 0
 export const adminAuth = getAuth(app);
 export const adminDb = getFirestore(app);
 export const db = adminDb;
+
+export function isAdminRole(role?: string) {
+  return role === "owner" || role === "head" || role === "manager";
+}
